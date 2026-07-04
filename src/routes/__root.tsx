@@ -83,20 +83,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Autoplay Playlist Player for put.io" },
+      { title: "bajbajbaj" },
       {
         name: "description",
         content:
           "Stream any put.io folder as a continuous, autoplaying video playlist with a clean cinema-style player.",
       },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Autoplay Playlist Player for put.io" },
+      { property: "og:title", content: "bajbajbaj" },
       {
         property: "og:description",
         content: "Continuous autoplay for put.io folders.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "bajbajbaj" },
+      { name: "description", content: "bajbajbaj" },
+      { property: "og:description", content: "bajbajbaj" },
+      { name: "twitter:description", content: "bajbajbaj" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/96249210-6d2b-4143-a069-4800ff88cf0b/id-preview-b6cef65e--0aa2199f-bc2f-4b9a-aa2c-f2a2a61498ab.lovable.app-1783183858576.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/96249210-6d2b-4143-a069-4800ff88cf0b/id-preview-b6cef65e--0aa2199f-bc2f-4b9a-aa2c-f2a2a61498ab.lovable.app-1783183858576.png" },
     ],
     links: [
       {
