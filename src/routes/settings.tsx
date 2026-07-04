@@ -1,11 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, KeyRound, Trash2 } from "lucide-react";
+import { ArrowLeft, KeyRound, Lock, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { clearToken, getToken, setToken } from "@/lib/storage";
+
+// Change this to rotate the admin password. Client-side only — this is a
+// convenience gate, not real authentication. The put.io token itself never
+// leaves this browser's localStorage.
+const ADMIN_PASSWORD = "MySecretPlaylist2026";
+const UNLOCK_KEY = "putio_settings_unlocked";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
@@ -21,10 +27,34 @@ export const Route = createFileRoute("/settings")({
 function SettingsPage() {
   const [value, setValue] = useState("");
   const [existing, setExisting] = useState<string | null>(null);
+  const [unlocked, setUnlocked] = useState(false);
+  const [pw, setPw] = useState("");
+  const [pwError, setPwError] = useState(false);
 
   useEffect(() => {
     setExisting(getToken());
+    setUnlocked(window.localStorage.getItem(UNLOCK_KEY) === "1");
   }, []);
+
+  const tryUnlock = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pw === ADMIN_PASSWORD) {
+      window.localStorage.setItem(UNLOCK_KEY, "1");
+      setUnlocked(true);
+      setPw("");
+      setPwError(false);
+      toast.success("Settings unlocked");
+    } else {
+      setPwError(true);
+    }
+  };
+
+  const lock = () => {
+    window.localStorage.removeItem(UNLOCK_KEY);
+    setUnlocked(false);
+    toast.success("Settings locked");
+  };
+
 
   const save = (e: React.FormEvent) => {
     e.preventDefault();
