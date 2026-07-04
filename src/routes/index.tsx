@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -22,7 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, Settings } from "lucide-react";
 
 const searchSchema = z.object({
-  folder: fallback(z.string().optional(), undefined),
+  folder: z.string().optional().catch(undefined),
 });
 
 export const Route = createFileRoute("/")({
