@@ -175,6 +175,12 @@ function SettingsPage() {
           and it isn't included in shareable playlist links.
         </p>
       </div>
+
+      <Button variant="ghost" size="sm" onClick={lock} className="mt-6">
+        <Lock className="mr-2 h-4 w-4" /> Lock settings
+      </Button>
+        </>
+      )}
     </div>
   );
 }
