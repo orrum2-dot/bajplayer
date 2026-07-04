@@ -83,13 +83,51 @@ function SettingsPage() {
 
       <div className="mb-8 flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15 ring-1 ring-primary/30">
-          <KeyRound className="h-5 w-5 text-primary" />
+          {unlocked ? (
+            <KeyRound className="h-5 w-5 text-primary" />
+          ) : (
+            <Lock className="h-5 w-5 text-primary" />
+          )}
         </div>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">put.io token</h1>
-          <p className="text-sm text-muted-foreground">Stored only in your browser's localStorage.</p>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {unlocked ? "put.io token" : "Locked"}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {unlocked
+              ? "Stored only in your browser's localStorage."
+              : "Enter the admin password to manage the token."}
+          </p>
         </div>
       </div>
+
+      {!unlocked ? (
+        <form onSubmit={tryUnlock} className="space-y-3 rounded-lg border bg-card p-4">
+          <label className="block text-sm font-medium">Admin password</label>
+          <Input
+            type="password"
+            value={pw}
+            onChange={(e) => {
+              setPw(e.target.value);
+              setPwError(false);
+            }}
+            placeholder="••••••••"
+            autoComplete="off"
+            autoFocus
+          />
+          {pwError && (
+            <p className="text-sm text-destructive">Incorrect password.</p>
+          )}
+          <Button type="submit" disabled={!pw} className="w-full">
+            Unlock
+          </Button>
+          <p className="pt-2 text-xs text-muted-foreground">
+            Regular visitors don't need this — they can watch the playlist without unlocking anything.
+          </p>
+        </form>
+      ) : (
+        <>
+
 
       {existing && (
         <div className="mb-6 flex items-center justify-between rounded-lg border bg-card p-4">
