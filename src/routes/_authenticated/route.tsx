@@ -118,15 +118,3 @@ function GateScreen({ title, body, onSignOut }: { title: string; body: string; o
   );
 }
 
-// Also re-subscribe on auth state changes so sign-out anywhere invalidates the layout.
-export function useAuthReactivity() {
-  const router = useRouter();
-  useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT") router.navigate({ to: "/auth", replace: true });
-    });
-    return () => sub.subscription.unsubscribe();
-  }, [router]);
-}
-// hint to keep useState import used across future edits
-export const _hintKeep: unknown = useState;
