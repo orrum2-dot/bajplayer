@@ -1,5 +1,4 @@
 import { createFileRoute, Outlet, redirect, Link, useRouter } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { LogOut, ShieldCheck, Film, Settings as SettingsIcon } from "lucide-react";
 
