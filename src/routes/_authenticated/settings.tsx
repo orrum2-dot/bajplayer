@@ -13,7 +13,7 @@ import { clearToken, getToken, setToken } from "@/lib/storage";
 const ADMIN_PASSWORD = "MySecretPlaylist2026";
 const UNLOCK_KEY = "putio_settings_unlocked";
 
-export const Route = createFileRoute("/settings")({
+export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
       { title: "Settings — Autoplay Player for put.io" },
