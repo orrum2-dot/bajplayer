@@ -1,3 +1,5 @@
+import { listFolderServer } from "./putio.functions";
+
 export interface PutioFile {
   id: number;
   name: string;
@@ -9,36 +11,37 @@ export interface PutioFile {
   parent_id?: number | null;
 }
 
-const API = "https://api.put.io/v2";
-
+/**
+ * Lists videos in a put.io folder.
+ *
+ * The actual fetch to put.io runs on our server via a TanStack Start server
+ * function (see `putio.functions.ts`). The client POSTs `{ folderId, token }`
+ * to our own origin, and the server does the outbound call — so the token
+ * never appears in the browser's Network tab for the listing request.
+ *
+ * Accepted limitation: video playback still uses a direct, token-bearing
+ * `<video src>` URL (see `streamUrl` below), because `<video>` can't attach
+ * an Authorization header or a POST body. Proxying full video streams
+ * through a serverless function would be impractical for large files.
+ *
+ * Signature is unchanged so all existing callers keep working.
+ */
 export async function listFolder(folderId: string, token: string): Promise<PutioFile[]> {
-  // Auth is passed as the `oauth_token` query param (not an Authorization header).
-  // A custom Authorization header turns this into a "non-simple" CORS request, which
-  // triggers a preflight OPTIONS call — put.io's API doesn't answer that the way
-  // browsers expect, so the real GET never happens and shows up as a 404 in the app.
-  // Passing the token as a query param keeps this a simple GET and avoids the
-  // preflight entirely, matching the official put.io v2 API spec.
-  const url = new URL(`${API}/files/list`);
-  url.searchParams.set("parent_id", folderId);
-  url.searchParams.set("per_page", "1000");
-  url.searchParams.set("oauth_token", token);
-
-  const res = await fetch(url.toString());
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    // Intentionally NOT clearing the saved token here (see storage.ts / settings.tsx).
-    // A failed request (bad folder id, rate limit, transient 5xx, etc.) should never
-    // wipe out a token the user already entered — that would force them to re-paste
-    // it every time something goes wrong.
-    throw new Error(`put.io API error ${res.status}: ${text || res.statusText}`);
-  }
-  const data = (await res.json()) as { files: PutioFile[] };
-  return data.files ?? [];
+  return listFolderServer({ data: { folderId, token } });
 }
 
+/**
+ * Direct, token-bearing stream URL.
+ *
+ * KNOWN, ACCEPTED LIMITATION: the OAuth token is visible in DevTools /
+ * Network tab for the playing video, because HTML `<video>` elements can
+ * only accept a plain URL — no custom headers, no POST body.
+ * We deliberately do NOT proxy video streams through our server (would
+ * blow past Vercel/Cloudflare execution time and bandwidth limits for
+ * large files, and would degrade seek performance).
+ */
 export function streamUrl(fileId: number, token: string): string {
-  return `${API}/files/${fileId}/stream?oauth_token=${encodeURIComponent(token)}`;
+  return `https://api.put.io/v2/files/${fileId}/stream?oauth_token=${encodeURIComponent(token)}`;
 }
 
 export function isVideo(f: PutioFile): boolean {
