@@ -25,7 +25,7 @@ const searchSchema = z.object({
   folder: z.string().optional().catch(undefined),
 });
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   validateSearch: zodValidator(searchSchema),
   head: () => ({
     meta: [

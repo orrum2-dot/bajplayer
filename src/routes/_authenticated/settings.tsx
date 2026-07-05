@@ -1,19 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, KeyRound, Lock, Trash2 } from "lucide-react";
+import { ArrowLeft, KeyRound, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { clearToken, getToken, setToken } from "@/lib/storage";
 
-// Change this to rotate the admin password. Client-side only — this is a
-// convenience gate, not real authentication. The put.io token itself never
-// leaves this browser's localStorage.
-const ADMIN_PASSWORD = "MySecretPlaylist2026";
-const UNLOCK_KEY = "putio_settings_unlocked";
+// This page is protected by the `_authenticated` route gate + per-account
+// admin approval (see `_authenticated/route.tsx` and the profile-status gate
+// applied at the layout level). The old client-side "admin password" gate
+// has been removed — auth is now handled by the per-user account system.
 
-export const Route = createFileRoute("/settings")({
+export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
       { title: "Settings — Autoplay Player for put.io" },
@@ -27,34 +26,10 @@ export const Route = createFileRoute("/settings")({
 function SettingsPage() {
   const [value, setValue] = useState("");
   const [existing, setExisting] = useState<string | null>(null);
-  const [unlocked, setUnlocked] = useState(false);
-  const [pw, setPw] = useState("");
-  const [pwError, setPwError] = useState(false);
 
   useEffect(() => {
     setExisting(getToken());
-    setUnlocked(window.localStorage.getItem(UNLOCK_KEY) === "1");
   }, []);
-
-  const tryUnlock = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pw === ADMIN_PASSWORD) {
-      window.localStorage.setItem(UNLOCK_KEY, "1");
-      setUnlocked(true);
-      setPw("");
-      setPwError(false);
-      toast.success("Settings unlocked");
-    } else {
-      setPwError(true);
-    }
-  };
-
-  const lock = () => {
-    window.localStorage.removeItem(UNLOCK_KEY);
-    setUnlocked(false);
-    toast.success("Settings locked");
-  };
-
 
   const save = (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,51 +58,15 @@ function SettingsPage() {
 
       <div className="mb-8 flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15 ring-1 ring-primary/30">
-          {unlocked ? (
-            <KeyRound className="h-5 w-5 text-primary" />
-          ) : (
-            <Lock className="h-5 w-5 text-primary" />
-          )}
+          <KeyRound className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {unlocked ? "put.io token" : "Locked"}
-          </h1>
+          <h1 className="text-2xl font-semibold tracking-tight">put.io token</h1>
           <p className="text-sm text-muted-foreground">
-            {unlocked
-              ? "Stored only in your browser's localStorage."
-              : "Enter the admin password to manage the token."}
+            Stored only in your browser's localStorage.
           </p>
         </div>
       </div>
-
-      {!unlocked ? (
-        <form onSubmit={tryUnlock} className="space-y-3 rounded-lg border bg-card p-4">
-          <label className="block text-sm font-medium">Admin password</label>
-          <Input
-            type="password"
-            value={pw}
-            onChange={(e) => {
-              setPw(e.target.value);
-              setPwError(false);
-            }}
-            placeholder="••••••••"
-            autoComplete="off"
-            autoFocus
-          />
-          {pwError && (
-            <p className="text-sm text-destructive">Incorrect password.</p>
-          )}
-          <Button type="submit" disabled={!pw} className="w-full">
-            Unlock
-          </Button>
-          <p className="pt-2 text-xs text-muted-foreground">
-            Regular visitors don't need this — they can watch the playlist without unlocking anything.
-          </p>
-        </form>
-      ) : (
-        <>
-
 
       {existing && (
         <div className="mb-6 flex items-center justify-between rounded-lg border bg-card p-4">
@@ -171,16 +110,11 @@ function SettingsPage() {
           .
         </p>
         <p>
-          The token stays on this device. It's never sent to any server other than put.io's API,
-          and it isn't included in shareable playlist links.
+          The token stays on this device. It's never sent to any server other than put.io's API
+          (and our own server function, which forwards the folder-listing call), and it isn't
+          included in shareable playlist links.
         </p>
       </div>
-
-      <Button variant="ghost" size="sm" onClick={lock} className="mt-6">
-        <Lock className="mr-2 h-4 w-4" /> Lock settings
-      </Button>
-        </>
-      )}
     </div>
   );
 }
